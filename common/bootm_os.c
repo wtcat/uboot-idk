@@ -147,32 +147,32 @@ static int do_bootm_lynxkdi(int flag, int argc, char * const argv[],
 static int do_bootm_rtems(int flag, int argc, char * const argv[],
 			   bootm_headers_t *images)
 {
-	void (*entry_point)(void *, bd_t *);
+	void (*kernel_entry)(int zero, int arch, ulong params);
+	ulong r2;
 
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
-// #if defined(CONFIG_FIT)
-// 	if (!images->legacy_hdr_valid) {
-// 		fit_unsupported_reset("RTEMS");
-// 		return 1;
-// 	}
-// #endif
-
-	entry_point = (void (*)(void *, bd_t *))images->ep;
-
+	kernel_entry = (void (*)(int, int, ulong))images->ep;
 	printf("## Transferring control to RTEMS (at address %08lx) ...\n",
-	       (ulong)entry_point);
+	       (ulong)kernel_entry);
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 	cleanup_before_linux();
 
+	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+		r2 = (ulong)images->ft_addr;
+	else
+		r2 = (ulong)gd->bd;
+
 	/*
 	 * RTEMS Parameters:
-	 *   r3: ptr to board info data
+	 *   r2: ptr to board info data or device tree
 	 */
-	printf("@Device address is %p\n", images->ft_addr);
-	(*entry_point)(images->ft_addr, gd->bd);
+	printf("@Kernel paramter address is 0x%lx\n", r2);
+	(*kernel_entry)(0, 0, r2);
+	
+	return 0;
 }
 #endif /* CONFIG_BOOTM_RTEMS */
 
