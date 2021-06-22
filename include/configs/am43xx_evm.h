@@ -138,7 +138,7 @@
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
-	"bootfile=rtems.img\0" \
+	"bootfile=kernel.img\0" \
 	"console=ttyO0,115200n8\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
